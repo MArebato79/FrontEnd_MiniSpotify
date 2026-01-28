@@ -2,34 +2,34 @@ import { useForm } from "react-hook-form";
 import { X } from "lucide-react";
 import { createPlaylist } from "../services/playlistService";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom"; // <--- 1. IMPORTAR ESTO
 
-// Recibimos 3 órdenes del padre (Sidebar):
-// isOpen: ¿Debo mostrarme?
-// onClose: Función para cerrarme
-// onPlaylistCreated: Función para avisar de que recargues la lista
 export const CreateFormPlaylist = ({ isOpen, onClose, onPlaylistCreated }) => {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset } = useForm();
+  const navigate = useNavigate(); // <--- 2. INICIALIZAR EL HOOK
 
-  // Si isOpen es falso, devolvemos null (no pintamos NADA en el HTML)
   if (!isOpen) return null;
 
   const onSubmit = async (data) => {
     try {
-      // 1. Llamamos al servicio
-      await createPlaylist(data);
+      // 3. CAPTURAMOS LA RESPUESTA (que trae el ID nuevo)
+      const newPlaylist = await createPlaylist(data);
       
-      // 2. Feedback visual
-      toast.success("¡Playlist creada! 🎵");
-      
-      // 3. Limpiamos el formulario
+      toast.success("Playlist creada! 🎵");
       reset();
       
-      // 4. Avisamos al padre y cerramos
-      onPlaylistCreated(); 
-      onClose();
+      onPlaylistCreated(); // Recargamos la lista del Sidebar
+      onClose(); // Cerramos el modal
+      
+      // 4. REDIRECCIÓN MÁGICA
+      // Asumiendo que tu backend devuelve un objeto con la propiedad "id"
+      if (newPlaylist && newPlaylist.id) {
+          navigate(`/playlist/${newPlaylist.id}`);
+      }
       
     } catch (error) {
-      toast.error("Error al crear la playlist");
+      console.error(error);
+      toast.error("Error al crear");
     }
   };
 

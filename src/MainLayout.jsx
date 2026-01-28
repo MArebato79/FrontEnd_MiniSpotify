@@ -1,7 +1,6 @@
 import { Outlet } from "react-router-dom"; // <--- LA CLAVE
-import { Sidebar } from "../components/Sidebar";
-import { Player } from "../components/Player";
-
+import { Sidebar } from "./components/Sidebar"; // Quita un punto (.)
+import { Player } from "./components/Player";
 export const MainLayout = () => {
   return (
     <div className="flex flex-col h-screen bg-black overflow-hidden">

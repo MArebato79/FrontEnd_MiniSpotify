@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { HomePage } from "../pages/HomePage";
 import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
+import { MainLayout } from "../MainLayout"; // Asegúrate de que la ruta sea correcta
+import { PlaylistPage } from "../pages/PlaylistPage";
 
 export const AppRouter = () => {
     return (
