@@ -13,7 +13,7 @@ export const getMyPlaylists = async () => {
 export const createPlaylist = async () => {
     
     try {
-        const response = await api.post('/playlists');
+        const response = await api.post('/playlists',playlistData);
         return response.data;
     } catch (error) {
         console.error("Error al crear la playlist",error)
@@ -23,6 +23,9 @@ export const createPlaylist = async () => {
 export const deletePlaylist = async (id) => {
     try{
         const response = await api.delete(`/playlists/${id}`)
+    }catch(error){
+        console.error("Error borrando playlist", error);
+        throw error;
     }
 }
 
