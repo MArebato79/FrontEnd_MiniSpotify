@@ -4,6 +4,7 @@ import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { MainLayout } from "../MainLayout"; // Asegúrate de que la ruta sea correcta
 import { PlaylistPage } from "../pages/PlaylistPage";
+import { AlbumPage } from "../pages/AlbumPage";
 
 export const AppRouter = () => {
     return (
@@ -16,7 +17,8 @@ export const AppRouter = () => {
             <Route element={<MainLayout />}>
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/playlist/:id" element={<PlaylistPage />} /> {/* :id es variable */}
-                {/* Puedes añadir más: <Route path="/perfil" element={<ProfilePage />} /> */}
+                <Route path="/perfil" element={<ProfilePage />} /> 
+                <Route path="/album/:id" element={<AlbumPage/>}></Route>
             </Route>
 
             {/* Redirección por defecto */}

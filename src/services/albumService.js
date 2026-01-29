@@ -1,7 +1,6 @@
 import api from "./api";
 
 export const createAlbum = async (albumData) => {
-  // albumData: { nombre: "Live at Wembley", anio: 2024, imagenUrl: "..." }
     try {
         const response = await api.post('/albums', albumData);
         return response.data;
@@ -11,7 +10,6 @@ export const createAlbum = async (albumData) => {
     }
 };
 
-// Obtener todos (para el Home)
 export const getAllAlbums = async () => {
     try {
         const response = await api.get('/albums');
@@ -20,3 +18,13 @@ export const getAllAlbums = async () => {
         return [];
     }
 };
+
+export const getAlbumById = async (id) => {
+    try {
+        const response = await api.get(`/albums/${id}`)
+        return response.data
+    } catch (error) {
+        console.log("Error al acceder al album",error)
+        return null
+    }
+}

@@ -8,3 +8,12 @@ export const getAllCanciones = async () => {
         console.log("Error al coger las canciones",error)
     }
 }
+
+export const getCancionById = async (id) =>{
+    try {
+        const response = await api.get(`/canciones/${id}`)
+        return response.data
+    } catch (error) {
+        console.log("Error al acceder a la cancion",error)
+    }
+}
