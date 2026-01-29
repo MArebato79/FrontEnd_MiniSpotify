@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom"; // Para leer el ID de la URL
 import { useEffect, useState } from "react";
-// Importarás tu servicio getPlaylistById aquí...
+import { getMyPlaylists } from "../services/playlistService";
 
 export const PlaylistPage = () => {
   const { id } = useParams(); // Leemos el /:id de la URL
