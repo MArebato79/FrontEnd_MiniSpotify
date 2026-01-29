@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getAlbumById } from "../services/albumService";
 import { Play, Clock, PlusCircle, Music } from "lucide-react";
-import { CreateSongModal } from "../components/CreateSongModal"; 
+import { CreateFormCancion } from "../components/CreateFormCancion"; // <--- IMPORT CORRECTO
 
 export const AlbumPage = () => {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const [album, setAlbum] = useState(null);
   const [isSongModalOpen, setIsSongModalOpen] = useState(false);
 
@@ -17,10 +17,10 @@ export const AlbumPage = () => {
     fetchAlbum();
   }, [id]);
 
-  if (!album) return <div className="text-white p-10">Cargando...</div>;
+  if (!album) return <div className="text-white p-10">Cargando álbum...</div>;
 
   return (
-    <div className="p-8 text-white">
+    <div className="p-8 text-white pb-32">
       {/* CABECERA */}
       <div className="flex items-end gap-6 mb-8">
         <img 
@@ -32,8 +32,8 @@ export const AlbumPage = () => {
             <p className="text-xs font-bold uppercase">Álbum</p>
             <h1 className="text-6xl font-black mb-4 tracking-tighter">{album.nombre}</h1>
             <div className="flex items-center gap-2 text-sm font-bold">
-                <img src="https://placehold.co/30" className="rounded-full w-6 h-6"/>
-                <span>{album.artistaNombre || "Artista Desconocido"}</span>
+                <img src="https://placehold.co/30" className="rounded-full w-6 h-6" alt="artista"/>
+                <span>{album.artistaNombre || "Artista"}</span>
                 <span className="text-gray-400">• {album.anio} • {album.canciones?.length || 0} canciones</span>
             </div>
         </div>
@@ -45,7 +45,6 @@ export const AlbumPage = () => {
             <Play fill="black" size={24} />
         </button>
         
-        {/* BOTÓN PARA AÑADIR CANCIONES (Solo debería verse si eres el dueño, por ahora lo dejamos visible) */}
         <button 
             onClick={() => setIsSongModalOpen(true)}
             className="text-gray-400 hover:text-white flex items-center gap-2 border border-gray-600 px-4 py-2 rounded-full hover:border-white transition"
@@ -70,7 +69,6 @@ export const AlbumPage = () => {
                 <div className="text-white font-medium">{track.titulo}</div>
                 
                 <div className="flex justify-end text-sm">
-                    {/* Convertir segundos a min:seg */}
                     {Math.floor(track.duracion / 60)}:{(track.duracion % 60).toString().padStart(2, '0')}
                 </div>
             </div>
@@ -83,12 +81,12 @@ export const AlbumPage = () => {
         )}
       </div>
 
-      {/* MODAL PARA SUBIR CANCIÓN */}
-      <CreateSongModal 
+      {/* MODAL NUEVO */}
+      <CreateFormCancion 
         isOpen={isSongModalOpen}
         onClose={() => setIsSongModalOpen(false)}
         albumId={id}
-        onSongCreated={fetchAlbum} 
+        onSongCreated={fetchAlbum}
       />
     </div>
   );
