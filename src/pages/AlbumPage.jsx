@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getAlbumById } from "../services/albumService";
 import { Play, Clock, PlusCircle, Music } from "lucide-react";
-import { CreateFormCancion } from "../components/CreateFormCancion"; // <--- IMPORT CORRECTO
+import { CreateFormCancion } from "../components/CreateFormCancion";
+import { FolderPlus } from "lucide-react";
+import { LinkSongModal } from "../components/LinkSongModal";
 
 export const AlbumPage = () => {
   const { id } = useParams();
   const [album, setAlbum] = useState(null);
   const [isSongModalOpen, setIsSongModalOpen] = useState(false);
+  const [isLinkModalOpen,setIsLinkModalOpen] = useState(false)
 
   const fetchAlbum = () => {
     getAlbumById(id).then(data => setAlbum(data));
@@ -51,6 +54,14 @@ export const AlbumPage = () => {
         >
             <PlusCircle size={20} /> Añadir Canción
         </button>
+
+        <button 
+            onClick={() => setIsLinkModalOpen(true)}
+            className="text-gray-400 hover:text-white flex items-center gap-2 border border-gray-600 px-4 py-2 rounded-full hover:border-white transition"
+            title="Añadir canción que ya subiste antes"
+        >
+            <FolderPlus size={20} />
+        </button>
       </div>
 
       {/* LISTA DE CANCIONES */}
@@ -88,6 +99,14 @@ export const AlbumPage = () => {
         albumId={id}
         onSongCreated={fetchAlbum}
       />
+
+      <LinkSongModal 
+         isOpen={isLinkModalOpen}
+         onClose={() => setIsLinkModalOpen(false)}
+         albumId={id}
+         onSongLinked={fetchAlbum}
+      />
+
     </div>
   );
 };

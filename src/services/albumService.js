@@ -28,3 +28,7 @@ export const getAlbumById = async (id) => {
         return null
     }
 }
+
+export const linkSongToAlbum = async (albumId, cancionId) => {
+    await api.put(`/albums/${albumId}/canciones/vincular/${cancionId}`);
+};
