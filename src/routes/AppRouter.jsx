@@ -2,9 +2,10 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { HomePage } from "../pages/HomePage";
 import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
-import { MainLayout } from "../MainLayout"; // Asegúrate de que la ruta sea correcta
+import { MainLayout } from "../MainLayout"; 
 import { PlaylistPage } from "../pages/PlaylistPage";
 import { AlbumPage } from "../pages/AlbumPage";
+import { ProfilePage } from "../pages/ProfilePage";
 
 export const AppRouter = () => {
     return (
@@ -16,9 +17,9 @@ export const AppRouter = () => {
             {/* RUTAS PROTEGIDAS (Con Sidebar y Player) */}
             <Route element={<MainLayout />}>
                 <Route path="/home" element={<HomePage />} />
-                <Route path="/playlist/:id" element={<PlaylistPage />} /> {/* :id es variable */}
-                <Route path="/perfil" element={<ProfilePage />} /> 
-                <Route path="/album/:id" element={<AlbumPage/>}></Route>
+                <Route path="/playlist/:id" element={<PlaylistPage />} />
+                <Route path="/perfil" element={<ProfilePage />} /> {/* Ahora sí funcionará */}
+                <Route path="/album/:id" element={<AlbumPage/>} />
             </Route>
 
             {/* Redirección por defecto */}

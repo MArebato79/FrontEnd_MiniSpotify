@@ -17,3 +17,12 @@ export const getCancionById = async (id) =>{
         console.log("Error al acceder a la cancion",error)
     }
 }
+
+export const createCancion = async (cancionData)=>{ 
+    try {
+        const response = await api.post('/canciones',cancionData)
+        return response.data
+    } catch (error) {
+        console.log("Error al crear la cancion",error)
+    }
+}
