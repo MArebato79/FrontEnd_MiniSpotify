@@ -19,3 +19,13 @@ export const createArtist = async (artistData) => {
         throw error;
     }
 };
+
+export const getFollowedArtists = async () => {
+    try {
+        const response = await api.get('/artistas/followed');
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching followed artists", error);
+        return [];
+    }
+};

@@ -6,6 +6,7 @@ import { MainLayout } from "../MainLayout";
 import { PlaylistPage } from "../pages/PlaylistPage";
 import { AlbumPage } from "../pages/AlbumPage";
 import { ProfilePage } from "../pages/ProfilePage";
+import { LibraryPage } from "../pages/LibraryPage";
 
 export const AppRouter = () => {
     return (
@@ -20,6 +21,7 @@ export const AppRouter = () => {
                 <Route path="/playlist/:id" element={<PlaylistPage />} />
                 <Route path="/perfil" element={<ProfilePage />} /> {/* Ahora sí funcionará */}
                 <Route path="/album/:id" element={<AlbumPage/>} />
+                <Route path="/library" element={<LibraryPage />} />
             </Route>
 
             {/* Redirección por defecto */}
