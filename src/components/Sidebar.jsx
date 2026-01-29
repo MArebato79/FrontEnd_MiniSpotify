@@ -3,96 +3,100 @@ import { Home, Library, PlusSquare, Disc, Music } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getMyPlaylists } from "../services/playlistService";
 import { getArtistById } from "../services/artistaService";
-import { CreateFormPlaylist } from "./CreateFormPlaylist"; 
+import { CreateFormPlaylist } from "./CreateFormPlaylist";
 
 export const Sidebar = () => {
-  const { user, logout } = useAuth();
-  const [playlists, setPlaylists] = useState([]);
-  const [albums, setAlbums] = useState([]);
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
+    const { user, logout } = useAuth();
+    const [playlists, setPlaylists] = useState([]);
+    const [albums, setAlbums] = useState([]);
 
-  const fetchPlaylists = () => {
-    getMyPlaylists().then(data => setPlaylists(data));
-  };
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchPlaylists();
-    if (user?.artistId) {
-        getArtistById(user.artistId).then(data => {
-            if(data) setAlbums(data.albums || []);
-        });
-    }
-  }, [user]);
+    const fetchPlaylists = () => {
+        getMyPlaylists().then(data => setPlaylists(data));
+    };
 
-  return (
-    <div className="w-full h-full flex flex-col bg-black text-gray-400">
-        
-        {/* HEADER */}
-        <div className="p-6 pb-2">
-            <div className="flex items-center gap-2 text-white font-bold text-xl mb-6">
-                <Music size={28} className="text-spotify-green"/>
-                <span>MiniSpotify</span>
-            </div>
-            
-            <nav className="space-y-4">
-                <a href="/home" className="flex items-center gap-4 hover:text-white transition font-bold">
-                    <Home size={24} /> Inicio
-                </a>
-                <div className="flex items-center gap-4 hover:text-white transition font-bold cursor-pointer">
-                    <Library size={24} /> Tu Biblioteca
+    useEffect(() => {
+        fetchPlaylists();
+        if (user?.artistId) {
+            getArtistById(user.artistId).then(data => {
+                if (data) setAlbums(data.albums || []);
+            });
+        }
+    }, [user]);
+
+    return (
+        <div className="w-full h-full flex flex-col bg-black text-gray-400">
+
+            {/* HEADER */}
+            <div className="p-6 pb-2">
+                <div className="flex items-center gap-2 text-white font-bold text-xl mb-6">
+                    <Music size={28} className="text-spotify-green" />
+                    <span>MiniSpotify</span>
                 </div>
-            </nav>
-        </div>
 
-        {/* LISTAS */}
-        <div className="flex-1 overflow-y-auto px-6 py-2 space-y-6 scrollbar-thin">
-            <div>
-                <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-xs font-bold tracking-widest uppercase hover:text-white">Tus Playlists</h3>
-                    <button onClick={() => setIsModalOpen(true)}>
-                         <PlusSquare size={18} className="hover:text-white cursor-pointer hover:scale-110 transition" />
-                    </button>
-                </div>
-                <ul className="space-y-2">
-                    {playlists.map(list => (
-                        <li key={list.id} className="text-sm hover:text-white cursor-pointer truncate">
-                            {list.nombre}
-                        </li>
-                    ))}
-                </ul>
+                <nav className="space-y-4">
+                    <a href="/home" className="flex items-center gap-4 hover:text-white transition font-bold">
+                        <Home size={24} /> Inicio
+                    </a>
+                    <div className="flex items-center gap-4 hover:text-white transition font-bold cursor-pointer">
+                        <Library size={24} /> Tu Biblioteca
+                    </div>
+                </nav>
             </div>
-            
-            {user?.artistId && (
+
+            {/* LISTAS */}
+            <div className="flex-1 overflow-y-auto px-6 py-2 space-y-6 scrollbar-thin">
                 <div>
-                    <div className="flex items-center justify-between mb-2 mt-6">
-                        <h3 className="text-xs font-bold tracking-widest uppercase text-spotify-green">Mis Álbumes</h3>
-                        <Disc size={18} className="text-spotify-green hover:text-white cursor-pointer" />
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-xs font-bold tracking-widest uppercase hover:text-white">Tus Playlists</h3>
+                        <button onClick={() => setIsModalOpen(true)}>
+                            <PlusSquare size={18} className="hover:text-white cursor-pointer hover:scale-110 transition" />
+                        </button>
                     </div>
                     <ul className="space-y-2">
-                        {albums.map(album => (
-                            <li key={album.id} className="flex items-center gap-2 text-sm hover:text-white cursor-pointer group">
-                                <img src={album.imagenUrl || "https://placehold.co/40"} alt="Cover" className="w-8 h-8 rounded opacity-70 group-hover:opacity-100 object-cover" />
-                                <span className="truncate">{album.nombre}</span>
+                        {playlists.map(list => (
+                            <li
+                                key={list.id}
+                                className="text-sm hover:text-white cursor-pointer truncate"
+                                onClick={() => navigate(`/playlist/${list.id}`)}
+                            >
+                                {list.nombre}
                             </li>
                         ))}
                     </ul>
                 </div>
-            )}
-        </div>
 
-        {/* FOOTER */}
-        <div className="p-6 border-t border-white/10">
-            <button onClick={logout} className="text-sm hover:text-white hover:underline">
-                Cerrar Sesión
-            </button>
-        </div>
+                {user?.artistId && (
+                    <div>
+                        <div className="flex items-center justify-between mb-2 mt-6">
+                            <h3 className="text-xs font-bold tracking-widest uppercase text-spotify-green">Mis Álbumes</h3>
+                            <Disc size={18} className="text-spotify-green hover:text-white cursor-pointer" />
+                        </div>
+                        <ul className="space-y-2">
+                            {albums.map(album => (
+                                <li key={album.id} className="flex items-center gap-2 text-sm hover:text-white cursor-pointer group">
+                                    <img src={album.imagenUrl || "https://placehold.co/40"} alt="Cover" className="w-8 h-8 rounded opacity-70 group-hover:opacity-100 object-cover" />
+                                    <span className="truncate">{album.nombre}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </div>
 
-        <CreateFormPlaylist 
-            isOpen={isModalOpen} 
-            onClose={() => setIsModalOpen(false)}
-            onPlaylistCreated={fetchPlaylists} 
-        />
-    </div>
-  );
+            {/* FOOTER */}
+            <div className="p-6 border-t border-white/10">
+                <button onClick={logout} className="text-sm hover:text-white hover:underline">
+                    Cerrar Sesión
+                </button>
+            </div>
+
+            <CreateFormPlaylist
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onPlaylistCreated={fetchPlaylists}
+            />
+        </div>
+    );
 };

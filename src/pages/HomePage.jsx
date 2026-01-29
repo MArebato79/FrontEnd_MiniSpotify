@@ -1,4 +1,5 @@
 import { Search, Bell, User } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const HomePage = () => {
     return (
