@@ -47,8 +47,15 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
+  const updateUser = (newData) => {
+    // 1. Fusionamos los datos actuales con los nuevos (ej: añadimos artistId)
+    const updatedUser = { ...user, ...newData };
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading,updateUser }}>
       {children}
     </AuthContext.Provider>
   );

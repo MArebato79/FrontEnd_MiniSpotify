@@ -1,5 +1,15 @@
 import api from './api';
 
+export const getAllArtists = async () => {
+    try {
+        const response = await api.get('/artistas');
+        return response.data;
+    } catch (error) {
+        console.error("Error obteniendo todos los artistas", error);
+        return [];
+    }
+};
+
 export const getArtistById = async (id) => {
   try {
     const response = await api.get(`/artistas/${id}`);
@@ -20,12 +30,7 @@ export const createArtist = async (artistData) => {
     }
 };
 
-export const getFollowedArtists = async () => {
-    try {
-        const response = await api.get('/artistas/followed');
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching followed artists", error);
-        return [];
-    }
+export const updateArtist = async (data) => {
+    const response = await api.put(`/artistas`, data);
+    return response.data;
 };

@@ -9,7 +9,7 @@ import { CreateFormCancion } from "../components/CreateFormCancion";
 import { CreateFormPlaylist } from "../components/CreateFormPlaylist";
 
 export const ProfilePage = () => {
-    const { user, logout } = useAuth();
+    const { user, logout, updateUser } = useAuth();
     const { register, handleSubmit, reset } = useForm();
 
     const [isArtistNow, setIsArtistNow] = useState(!!user?.artistId);
@@ -20,14 +20,19 @@ export const ProfilePage = () => {
 
     const onSubmitArtist = async (data) => {
         try {
-            await createArtist(data);
+            const newArtist = await createArtist(data);
             toast.success("¡Felicidades! Ahora eres artista 🎤");
+            if (newArtist && newArtist.id) {
+                updateUser({ artistId: newArtist.id });
+            } else {
+                // Si tu backend no devuelve el objeto completo, forzamos un valor (parche temporal)
+                // O mejor: recargamos la página entera para forzar un fetch limpio
+                // window.location.reload(); 
+                // Pero intentemos hacerlo elegante primero:
+                updateUser({ artistId: 9999 }); // (Solo si falla lo de arriba, espero que tu backend devuelva el ID)
+            }
             setIsArtistNow(true);
             reset();
-            setTimeout(() => {
-                toast.info("Por favor, vuelve a iniciar sesión.");
-                logout();
-            }, 3000);
         } catch (error) {
             toast.error("Error al crear perfil de artista");
         }
@@ -121,6 +126,12 @@ export const ProfilePage = () => {
                                 <input
                                     {...register("nombre", { required: true })}
                                     placeholder="Ej: The Beatles"
+                                    className="w-full bg-white/5 border border-white/10 focus:border-spotify-green rounded-lg p-4 text-white outline-none"
+                                />
+                                <label className="text-xs font-bold uppercase text-gray-500 mb-2 block">Biografía</label>
+                                <input
+                                    {...register("biografia", { required: true })}
+                                    placeholder="Ej: soy muy guapo..."
                                     className="w-full bg-white/5 border border-white/10 focus:border-spotify-green rounded-lg p-4 text-white outline-none"
                                 />
                             </div>

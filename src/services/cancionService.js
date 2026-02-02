@@ -3,20 +3,21 @@ import api from "./api";
 export const getAllCanciones = async () => {
     try {
         const response = await api.get('/canciones')
-        return response.data
+        return response.data.content || response.data || [];
     } catch (error) {
         console.log("Error al coger las canciones",error)
     }
 }
 
-export const getCancionById = async (id) =>{
+export const getCancionById = async (id) => {
     try {
-        const response = await api.get(`/canciones/${id}`)
-        return response.data
+        const response = await api.get(`/canciones/${id}`);
+        return response.data;
     } catch (error) {
-        console.log("Error al acceder a la cancion",error)
+        console.error("Error cargando canción", error);
+        return null;
     }
-}
+};
 
 export const createCancion = async (cancionData)=>{ 
     try {

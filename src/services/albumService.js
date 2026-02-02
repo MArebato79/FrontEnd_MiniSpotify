@@ -10,6 +10,11 @@ export const createAlbum = async (albumData) => {
     }
 };
 
+export const updateAlbum = async (id, data) => {
+    const response = await api.put(`/albumes/${id}`, data); // O la ruta que tengas en Java
+    return response.data;
+};
+
 export const getAllAlbums = async () => {
     try {
         const response = await api.get('/albums');

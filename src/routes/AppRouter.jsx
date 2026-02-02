@@ -7,6 +7,8 @@ import { PlaylistPage } from "../pages/PlaylistPage";
 import { AlbumPage } from "../pages/AlbumPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { LibraryPage } from "../pages/LibraryPage";
+import { SongPage } from "../pages/SongPage";
+import { ArtistPage } from "../pages/ArtistPage";
 
 export const AppRouter = () => {
     return (
@@ -22,6 +24,8 @@ export const AppRouter = () => {
                 <Route path="/perfil" element={<ProfilePage />} /> {/* Ahora sí funcionará */}
                 <Route path="/album/:id" element={<AlbumPage/>} />
                 <Route path="/library" element={<LibraryPage />} />
+                <Route path="/artist/:id" element={<ArtistPage />} />
+                <Route path="/song/:id" element={<SongPage />} />
             </Route>
 
             {/* Redirección por defecto */}
