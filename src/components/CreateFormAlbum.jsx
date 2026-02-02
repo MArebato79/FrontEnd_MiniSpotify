@@ -1,25 +1,42 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { X, Disc } from "lucide-react";
+import { X, Disc, Upload, Loader2 } from "lucide-react";
 import { createAlbum } from "../services/albumService";
+import { uploadToCloudinary } from "../services/cloudinaryService"; // <--- Importar servicio
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export const CreateFormAlbum = ({ isOpen, onClose, onAlbumCreated }) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm();
+    const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm();
     const navigate = useNavigate();
     const { user } = useAuth();
+    const [uploading, setUploading] = useState(false);
 
     if (!isOpen) return null;
 
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true);
+        try {
+            const url = await uploadToCloudinary(file);
+            setValue("imagenUrl", url);
+            toast.success("Carátula subida");
+        } catch (error) {
+            toast.error("Error al subir imagen");
+        } finally {
+            setUploading(false);
+        }
+    };
+
     const onSubmit = async (data) => {
         try {
-            // FECHA AUTOMÁTICA: Usamos el año actual
             const currentYear = new Date().getFullYear();
-
             const albumData = {
                 ...data,
-                anio: currentYear, // <--- AQUÍ ESTÁ EL CAMBIO
+                anio: currentYear,
                 artistId: user.artistId
             };
 
@@ -34,12 +51,13 @@ export const CreateFormAlbum = ({ isOpen, onClose, onAlbumCreated }) => {
             if (newAlbum && newAlbum.id) {
                 navigate(`/album/${newAlbum.id}`);
             }
-
         } catch (error) {
             console.error(error);
             toast.error("Error al publicar el álbum");
         }
     };
+
+    const imagenUrlValue = watch("imagenUrl");
 
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm">
@@ -63,15 +81,50 @@ export const CreateFormAlbum = ({ isOpen, onClose, onAlbumCreated }) => {
                         {errors.nombre && <span className="text-red-500 text-xs">{errors.nombre.message}</span>}
                     </div>
 
-                    {/* EL INPUT DE AÑO HA SIDO ELIMINADO PORQUE ES AUTOMÁTICO */}
-
+                    {/* CARÁTULA (HÍBRIDO) */}
                     <div>
-                        <label className="text-sm font-bold text-white mb-1 block">Carátula (URL)</label>
+                        <label className="text-sm font-bold text-white mb-1 block">Carátula</label>
+                        <div className="flex gap-2">
+                            <input
+                                {...register("imagenUrl")}
+                                className="flex-1 p-3 rounded bg-[#3E3E3E] text-white border-none focus:ring-2 focus:ring-spotify-green outline-none placeholder-gray-500"
+                                placeholder="https://..."
+                            />
+                            <label className="bg-white/10 hover:bg-white/20 text-white p-3 rounded cursor-pointer transition flex items-center justify-center min-w-[50px]">
+                                {uploading ? <Loader2 className="animate-spin" size={20} /> : <Upload size={20} />}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                    disabled={uploading}
+                                />
+                            </label>
+                        </div>
+                        {imagenUrlValue && (
+                            <div className="mt-2 flex justify-center">
+                                <img
+                                    src={imagenUrlValue}
+                                    className="w-32 h-32 object-cover rounded shadow-lg border border-white/10"
+                                    onError={(e) => e.target.style.display = 'none'}
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* PRIVACIDAD */}
+                    <div className="flex items-center gap-3 p-2 bg-white/5 rounded-md">
                         <input
-                            {...register("imagenUrl")}
-                            className="w-full p-3 rounded bg-[#3E3E3E] text-white border-none focus:ring-2 focus:ring-spotify-green outline-none"
-                            placeholder="https://..."
+                            type="checkbox"
+                            id="publica_album"
+                            {...register("publica")}
+                            className="w-5 h-5 accent-spotify-green cursor-pointer"
+                            defaultChecked={true}
                         />
+                        <label htmlFor="publica_album" className="text-sm text-white cursor-pointer select-none">
+                            ¿Álbum Público?
+                            <span className="block text-xs text-gray-400">Desmarca para mantenerlo oculto.</span>
+                        </label>
                     </div>
 
                     <div className="flex justify-end pt-2">
