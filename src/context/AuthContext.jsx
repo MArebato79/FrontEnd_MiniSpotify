@@ -1,63 +1,64 @@
-import { createContext, useState, useEffect, useContext } from 'react';
-import { jwtDecode } from "jwt-decode"; // <--- Importamos la librería
-import { loginUser, logoutUser } from '../services/authService';
+import { createContext, useContext, useState } from "react";
+// Importamos los nombres correctos que tienes en tu servicio
+import { loginUser, registerUser } from "../services/authService";
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context)
+    throw new Error("useAuth debe usarse dentro de un AuthProvider");
+  return context;
+};
 
-  // Función auxiliar para decodificar el token
-  const processToken = (token) => {
+export const AuthProvider = ({ children }) => {
+  // Leemos el usuario del localStorage al iniciar para no perder la sesión
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
+  // 👇👇 FUNCIÓN ARREGLADA: Acepta (email, password) por separado 👇👇
+  const login = async (email, password) => {
     try {
-      const decoded = jwtDecode(token);
-      // Guardamos el token Y los datos importantes (nombre, si es artista, etc)
-      setUser({ 
-        token,
-        username: decoded.sub,
-        artistId: decoded.artistId || null // Si no es artista, esto será null
-      });
-      setIsAuthenticated(true);
+      // Ahora sí pasamos las variables directas al servicio
+      const response = await loginUser(email, password);
+
+      // Guardamos la respuesta completa del backend
+      const userData = response;
+
+      setUser(userData);
+      localStorage.setItem("token", userData.token);
+      localStorage.setItem("user", JSON.stringify(userData));
+      return true;
     } catch (error) {
-      console.error("Token inválido", error);
-      logout();
+      console.error("Error en AuthContext login:", error);
+      throw error;
     }
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      processToken(token);
-    }
-    setLoading(false);
-  }, []);
-
-  const login = async (email, password) => {
-    const data = await loginUser(email, password);
-    if (data.token) {
-        processToken(data.token);
-    }
+  const register = async (data) => {
+    await registerUser(data);
   };
 
   const logout = () => {
-    logoutUser();
     setUser(null);
-    setIsAuthenticated(false);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/login";
   };
 
   const updateUser = (newData) => {
-    const updatedUser = { ...user, ...newData };
-    setUser(updatedUser);
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setUser((prev) => {
+      const updated = { ...prev, ...newData };
+      localStorage.setItem("user", JSON.stringify(updated));
+      return updated;
+    });
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading,updateUser }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);

@@ -27,3 +27,8 @@ export const createCancion = async (cancionData)=>{
         console.log("Error al crear la cancion",error)
     }
 }
+
+export const updateCancion = async (id, data) => {
+    const response = await api.put(`/canciones/${id}`, data);
+    return response.data;
+};

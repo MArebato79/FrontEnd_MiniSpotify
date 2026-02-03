@@ -1,21 +1,21 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { X, Save, Upload, Loader2, User } from "lucide-react";
+import { X, Upload, Loader2, User } from "lucide-react";
 import { uploadToCloudinary } from "../services/cloudinaryService";
-import { updateArtist } from "../services/artistaService"; // Usaremos este si es artista
 import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
-import api from "../services/api"; // Importar api para llamar al usuario directo si hace falta
+import api from "../services/api";
 
 export const EditProfileModal = ({ isOpen, onClose }) => {
-  const { user, updateUser } = useAuth(); // Importante: updateUser del contexto
+  const { user, updateUser } = useAuth();
   const { register, handleSubmit, setValue, watch } = useForm();
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (user && isOpen) {
-      setValue("username", user.username);
-      if (user.imagenUrl) setValue("foto", user.imagenUrl); 
+      // Cargamos el nombre actual
+      setValue("username", user.username || user.nombre); 
+      setValue("foto", user.foto || user.imagenUrl);
     }
   }, [user, isOpen, setValue]);
 
@@ -25,27 +25,40 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
     setUploading(true);
     try {
         const url = await uploadToCloudinary(file);
-        setValue("foto", url); // Asegúrate de que tu backend espera "foto" o "imagenUrl"
+        setValue("foto", url); 
     } finally { setUploading(false); }
   };
 
   const onSubmit = async (data) => {
-    try {
-        // Llamada al backend (Ajusta la ruta según tu UsuarioController)
-        const response = await api.put(`/usuarios/${user.id}`, {
-            username: data.username,
-            foto: data.foto // O fotoUrl
-        });
+    if (!user || !user.id) return;
 
-        // ACTUALIZAR EL CONTEXTO GLOBAL (Para que cambie el nombre en la barra lateral al momento)
+    try {
+        // 👇👇 TRUCO: Enviamos 'username' Y 'nombre' para asegurar que el Java lo pilla
+        const payload = {
+            username: data.username,
+            nombre: data.username, // Por si tu DTO espera 'nombre'
+            foto: data.foto,
+            imagenUrl: data.foto   // Por si espera 'imagenUrl'
+        };
+
+        const response = await api.put(`/usuarios/${user.id}`, payload);
+        
+        // Obtenemos los datos nuevos (priorizamos lo que devuelve el back, si no, lo que escribimos)
+        const nuevoNombre = response.data?.username || response.data?.nombre || data.username;
+        const nuevaFoto = response.data?.foto || response.data?.imagenUrl || data.foto;
+
+        // 👇👇 ACTUALIZACIÓN FORZADA DEL CONTEXTO 👇👇
         updateUser({ 
-            username: response.data.username, 
-            imagenUrl: response.data.imagenUrl || response.data.foto 
+            username: nuevoNombre, 
+            nombre: nuevoNombre,
+            foto: nuevaFoto,       
+            imagenUrl: nuevaFoto   
         });
         
         toast.success("Perfil actualizado");
         onClose();
     } catch (error) {
+        console.error(error);
         toast.error("Error al actualizar perfil");
     }
   };
@@ -72,7 +85,15 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
                     <input type="file" className="hidden" onChange={handleFileChange} />
                 </label>
             </div>
-            {watch("foto") && <img src={watch("foto")} className="mt-2 w-16 h-16 rounded-full object-cover"/>}
+            
+            {watch("foto") && watch("foto").length > 5 && (
+                <img 
+                    src={watch("foto")} 
+                    className="mt-2 w-16 h-16 rounded-full object-cover border border-white/10 mx-auto"
+                    onError={(e) => e.target.style.display = 'none'} 
+                    onLoad={(e) => e.target.style.display = 'block'}
+                />
+            )}
           </div>
           <button type="submit" className="w-full bg-white text-black font-bold py-3 rounded-full hover:scale-105 transition">Guardar</button>
         </form>

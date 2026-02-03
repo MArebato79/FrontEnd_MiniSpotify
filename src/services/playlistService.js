@@ -34,3 +34,12 @@ export const deletePlaylist = async (id) => {
         throw error;
     }
 }
+
+export const getPlaylistById = async (id) => {
+  const response = await api.get(`/playlists/${id}`);
+  return response.data;
+};
+
+export const addSongToPlaylist = async (playlistId, cancionId) => {
+  await api.post(`/playlists/${playlistId}/canciones/${cancionId}`);
+};

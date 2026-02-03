@@ -1,112 +1,107 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Clock, Play, Heart, MoreHorizontal, Edit2 } from "lucide-react";
 import { getAlbumById } from "../services/albumService";
-import { Play, Clock, PlusCircle, Music } from "lucide-react";
-import { CreateFormCancion } from "../components/CreateFormCancion";
-import { FolderPlus } from "lucide-react";
-import { LinkSongModal } from "../components/LinkSongModal";
+import { useAuth } from "../context/AuthContext";
+import { EditAlbumModal } from "../components/EditAlbumModal"; // <--- IMPORTAR MODAL
+import { usePlayer } from "../components/Player";
 
 export const AlbumPage = () => {
   const { id } = useParams();
+  const { user } = useAuth();
+  const { playSong } = usePlayer();
   const [album, setAlbum] = useState(null);
-  const [isSongModalOpen, setIsSongModalOpen] = useState(false);
-  const [isLinkModalOpen,setIsLinkModalOpen] = useState(false)
+  const [loading, setLoading] = useState(true);
+  const [isEditOpen, setIsEditOpen] = useState(false); // Estado
 
-  const fetchAlbum = () => {
-    getAlbumById(id).then(data => setAlbum(data));
+  const fetchAlbum = async () => {
+    try {
+      const data = await getAlbumById(id);
+      setAlbum(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchAlbum();
   }, [id]);
 
-  if (!album) return <div className="text-white p-10">Cargando álbum...</div>;
+  if (loading) return <div className="p-8 text-white">Cargando...</div>;
+  if (!album) return <div className="p-8 text-white">Álbum no encontrado</div>;
+
+  // Comprobar dueño (Nota: ajusta 'album.artista.id' según cómo venga tu DTO)
+  const isOwner = user?.artistId && album.artista && String(user.artistId) === String(album.artista.id);
 
   return (
-    <div className="p-8 text-white pb-32">
-      {/* CABECERA */}
-      <div className="flex items-end gap-6 mb-8">
+    <div className="bg-gradient-to-b from-purple-900 to-[#121212] min-h-screen text-white pb-24">
+      <div className="flex items-end gap-6 p-8 bg-black/20 backdrop-blur-md">
         <img 
-            src={album.imagenUrl || "https://placehold.co/200"} 
-            className="w-52 h-52 object-cover shadow-2xl shadow-black/50 rounded-md" 
-            alt={album.nombre}
+          src={album.imagenUrl || album.foto || "https://placehold.co/400"} 
+          alt={album.nombre} 
+          className="w-52 h-52 shadow-2xl rounded-md object-cover"
         />
-        <div>
-            <p className="text-xs font-bold uppercase">Álbum</p>
-            <h1 className="text-6xl font-black mb-4 tracking-tighter">{album.nombre}</h1>
-            <div className="flex items-center gap-2 text-sm font-bold">
-                <img src="https://placehold.co/30" className="rounded-full w-6 h-6" alt="artista"/>
-                <span>{album.artistaNombre || "Artista"}</span>
-                <span className="text-gray-400">• {album.anio} • {album.canciones?.length || 0} canciones</span>
-            </div>
+        <div className="flex flex-col gap-2">
+          <span className="text-sm font-bold uppercase">Álbum</span>
+          <h1 className="text-6xl font-black tracking-tighter">{album.nombre}</h1>
+          <div className="flex items-center gap-2 mt-4 text-sm font-medium">
+             <span className="font-bold hover:underline cursor-pointer">{album.artista?.nombre}</span>
+             <span>• {album.anio}</span>
+             <span>• {album.canciones?.length || 0} canciones</span>
+             
+             {isOwner && (
+                <button 
+                    onClick={() => setIsEditOpen(true)}
+                    className="ml-4 flex items-center gap-2 text-gray-300 border border-gray-500 hover:text-white hover:border-white px-3 py-1 rounded-full text-xs transition"
+                >
+                    <Edit2 size={14}/> Editar
+                </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* CONTROLES */}
-      <div className="flex items-center gap-4 mb-8">
-        <button className="bg-spotify-green text-black p-4 rounded-full hover:scale-105 transition shadow-lg">
-            <Play fill="black" size={24} />
-        </button>
+      {/* Lista de Canciones */}
+      <div className="p-8">
+        <div className="flex items-center gap-8 mb-8">
+             <button className="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center hover:scale-105 transition shadow-lg">
+                <Play fill="black" size={24} className="ml-1 text-black"/>
+            </button>
+            <button className="text-gray-400 hover:text-white"><Heart size={32}/></button>
+            <button className="text-gray-400 hover:text-white"><MoreHorizontal size={32}/></button>
+        </div>
         
-        <button 
-            onClick={() => setIsSongModalOpen(true)}
-            className="text-gray-400 hover:text-white flex items-center gap-2 border border-gray-600 px-4 py-2 rounded-full hover:border-white transition"
-        >
-            <PlusCircle size={20} /> Añadir Canción
-        </button>
-
-        <button 
-            onClick={() => setIsLinkModalOpen(true)}
-            className="text-gray-400 hover:text-white flex items-center gap-2 border border-gray-600 px-4 py-2 rounded-full hover:border-white transition"
-            title="Añadir canción que ya subiste antes"
-        >
-            <FolderPlus size={20} />
-        </button>
-      </div>
-
-      {/* LISTA DE CANCIONES */}
-      <div className="flex flex-col">
-        <div className="grid grid-cols-[16px_4fr_1fr] text-gray-400 border-b border-white/10 pb-2 mb-4 px-4 text-sm">
-            <span>#</span>
-            <span>TÍTULO</span>
-            <span className="flex justify-end"><Clock size={16}/></span>
-        </div>
-
-        {album.canciones && album.canciones.map((track, index) => (
-            <div key={track.id} className="grid grid-cols-[16px_4fr_1fr] items-center text-gray-400 hover:bg-white/10 p-2 rounded group transition px-4">
-                <span className="group-hover:hidden">{index + 1}</span>
-                <span className="hidden group-hover:block text-white"><Play size={12} fill="white"/></span>
-                
-                <div className="text-white font-medium">{track.titulo}</div>
-                
-                <div className="flex justify-end text-sm">
-                    {Math.floor(track.duracion / 60)}:{(track.duracion % 60).toString().padStart(2, '0')}
+        <div className="flex flex-col">
+            <div className="grid grid-cols-[auto_1fr_auto] gap-4 px-4 py-2 border-b border-white/10 text-gray-400 text-sm mb-2">
+                <span>#</span>
+                <span>TÍTULO</span>
+                <Clock size={16}/>
+            </div>
+            {album.canciones && album.canciones.map((track, index) => (
+                <div 
+                    key={track.id} 
+                    onClick={() => playSong(track)}
+                    className="grid grid-cols-[auto_1fr_auto] gap-4 px-4 py-3 hover:bg-white/10 rounded-md cursor-pointer group"
+                >
+                    <span className="text-gray-400 group-hover:text-white">{index + 1}</span>
+                    <div className="flex flex-col">
+                         <span className="text-white font-medium">{track.titulo}</span>
+                         <span className="text-gray-400 text-xs">{album.artista?.nombre}</span>
+                    </div>
+                    <span className="text-gray-400">3:45</span> {/* Duración hardcodeada temporalmente */}
                 </div>
-            </div>
-        ))}
-        {(!album.canciones || album.canciones.length === 0) && (
-            <div className="text-center text-gray-500 py-10 flex flex-col items-center">
-                <Music size={40} className="mb-2 opacity-50"/>
-                <p>Aún no hay canciones en este álbum.</p>
-            </div>
-        )}
+            ))}
+        </div>
       </div>
 
-      {/* MODAL NUEVO */}
-      <CreateFormCancion 
-        isOpen={isSongModalOpen}
-        onClose={() => setIsSongModalOpen(false)}
-        albumId={id}
-        onSongCreated={fetchAlbum}
+      <EditAlbumModal 
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        album={album}
+        onUpdated={fetchAlbum}
       />
-
-      <LinkSongModal 
-         isOpen={isLinkModalOpen}
-         onClose={() => setIsLinkModalOpen(false)}
-         albumId={id}
-         onSongLinked={fetchAlbum}
-      />
-
     </div>
   );
 };

@@ -1,158 +1,95 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { X, Music, Upload, Loader2, Clock } from "lucide-react";
+import { X, Music, Upload, Loader2 } from "lucide-react";
 import { createCancion } from "../services/cancionService";
-import { uploadToCloudinary } from "../services/cloudinaryService"; // <--- Importar Cloudinary
+import { uploadToCloudinary } from "../services/cloudinaryService";
+import api from "../services/api"; 
 import { toast } from "sonner";
-import { useAuth } from "../context/AuthContext";
 
 export const CreateFormCancion = ({ isOpen, onClose, onSongCreated }) => {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm();
-  const { user } = useAuth();
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm();
   const [uploading, setUploading] = useState(false);
+  const [generos, setGeneros] = useState([]);
+
+  useEffect(() => {
+    if (isOpen) {
+        api.get("/canciones/generos")
+           .then(res => setGeneros(res.data))
+           .catch(() => setGeneros(["POP", "ROCK", "OTRO"]));
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  // Lógica de subida de imagen
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     setUploading(true);
     try {
-      const url = await uploadToCloudinary(file);
-      setValue("imagenUrl", url);
-      toast.success("Carátula subida");
-    } catch (error) {
-      toast.error("Error al subir imagen");
-    } finally {
-      setUploading(false);
-    }
+        const url = await uploadToCloudinary(file);
+        setValue("imagenUrl", url);
+        toast.success("Carátula cargada");
+    } catch (error) { toast.error("Error al subir"); } finally { setUploading(false); }
   };
 
   const onSubmit = async (data) => {
     try {
-      // Convertir duración 'mm:ss' a segundos (si usas input de texto) o enviarla directa
-      // Asumiremos que el backend espera un entero (segundos) o string.
-      // Aquí un ejemplo simple enviando los datos directos:
       const cancionData = {
-        ...data,
-        artistId: user.artistId, // Asociar al artista logueado
+          titulo: data.titulo,
+          imagenUrl: data.imagenUrl,
+          genero: data.genero,
+          publica: data.publica
       };
-
       await createCancion(cancionData);
-
-      toast.success("¡Canción subida con éxito! 🎵");
+      toast.success("¡Canción publicada!");
       reset();
       if (onSongCreated) onSongCreated();
       onClose();
-    } catch (error) {
-      console.error(error);
-      toast.error("Error al subir la canción");
-    }
+    } catch (error) { toast.error("Error al subir"); }
   };
-
-  const imagenUrlValue = watch("imagenUrl");
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-[#282828] p-6 rounded-lg w-full max-w-md border border-white/10 shadow-2xl animate-in fade-in zoom-in duration-200">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white"
-        >
-          <X size={24} />
-        </button>
-
-        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-          <Music className="text-blue-500" /> Nueva Canción
-        </h2>
-
+      <div className="bg-[#282828] p-6 rounded-lg w-full max-w-md border border-white/10 shadow-2xl">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white"><X size={24} /></button>
+        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Music className="text-blue-500"/> Nueva Canción</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* TÍTULO */}
           <div>
-            <label className="text-sm font-bold text-white mb-1 block">
-              Título
-            </label>
-            <input
-              {...register("titulo", { required: "El título es obligatorio" })}
-              className="w-full p-3 rounded bg-[#3E3E3E] text-white border-none focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="Ej: Bohemian Rhapsody"
-              autoFocus
-            />
-            {errors.titulo && (
-              <span className="text-red-500 text-xs">
-                {errors.titulo.message}
-              </span>
-            )}
+            <label className="text-sm font-bold text-white">Título</label>
+            <input {...register("titulo", { required: true })} className="w-full p-3 rounded bg-[#3E3E3E] text-white border-none" placeholder="Ej: Song 2" />
           </div>
-
-          {/* DURACIÓN (Ejemplo simple en segundos) */}
           <div>
-            <label className="text-sm font-bold text-white mb-1 block">
-              Duración (segundos)
-            </label>
-            <div className="relative">
-              <Clock
-                size={18}
-                className="absolute left-3 top-3.5 text-gray-400"
-              />
-              <input
-                type="number"
-                {...register("duracion", { required: true, min: 1 })}
-                className="w-full p-3 pl-10 rounded bg-[#3E3E3E] text-white border-none focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="Ej: 210"
-              />
-            </div>
+            <label className="text-sm font-bold text-white">Género</label>
+            <select {...register("genero", { required: true })} className="w-full p-3 rounded bg-[#3E3E3E] text-white border-none cursor-pointer">
+                <option value="">Selecciona...</option>
+                {generos.map(g => <option key={g} value={g}>{g}</option>)}
+            </select>
           </div>
-
-          {/* CARÁTULA (SINGLE) */}
           <div>
-            <label className="text-sm font-bold text-white mb-1 block">
-              Carátula del Single
-            </label>
+            <label className="text-sm font-bold text-white block mb-1">Carátula</label>
             <div className="flex gap-2">
-              <input
-                {...register("imagenUrl")}
-                className="flex-1 p-3 rounded bg-[#3E3E3E] text-white border-none focus:ring-2 focus:ring-blue-500 outline-none placeholder-gray-500"
-                placeholder="https://..."
-              />
-              <label className="bg-white/10 hover:bg-white/20 text-white p-3 rounded cursor-pointer transition flex items-center justify-center min-w-[50px]">
-                {uploading ? (
-                  <Loader2 className="animate-spin" size={20} />
-                ) : (
-                  <Upload size={20} />
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileChange}
-                  disabled={uploading}
-                />
-              </label>
+                <input {...register("imagenUrl")} className="flex-1 p-3 rounded bg-[#3E3E3E] text-white" placeholder="https://..." />
+                <label className="bg-white/10 hover:bg-white/20 text-white p-3 rounded cursor-pointer">
+                    {uploading ? <Loader2 className="animate-spin"/> : <Upload />}
+                    <input type="file" className="hidden" onChange={handleFileChange} />
+                </label>
             </div>
-            {imagenUrlValue && (
-              <img
-                src={imagenUrlValue}
-                className="mt-2 w-20 h-20 object-cover rounded shadow"
-              />
+            
+            {/* VISTA PREVIA PROTEGIDA */}
+            {watch("imagenUrl") && watch("imagenUrl").length > 5 && (
+                <div className="mt-2 flex justify-center">
+                    <img src={watch("imagenUrl")} className="w-20 h-20 object-cover rounded shadow"
+                        onError={(e) => e.target.style.display = 'none'} 
+                        onLoad={(e) => e.target.style.display = 'block'}
+                    />
+                </div>
             )}
           </div>
-
-          <button
-            type="submit"
-            className="bg-blue-600 text-white font-bold py-3 px-8 rounded-full hover:scale-105 transition-transform w-full mt-2"
-          >
-            Subir Canción
-          </button>
+          <div className="flex items-center gap-3 p-2 bg-white/5 rounded-md">
+            <input type="checkbox" {...register("publica")} className="w-5 h-5 accent-blue-500" defaultChecked={true} />
+            <label className="text-sm text-white">Visible para todos</label>
+          </div>
+          <button type="submit" className="bg-blue-600 text-white font-bold py-3 px-8 rounded-full w-full mt-2">Subir Canción</button>
         </form>
       </div>
     </div>

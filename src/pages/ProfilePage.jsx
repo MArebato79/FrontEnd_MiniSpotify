@@ -26,7 +26,7 @@ export const ProfilePage = () => {
   const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
   const [isSongModalOpen, setIsSongModalOpen] = useState(false);
   const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
-  const [uploading, setUploading] = useState(false); 
+  const [uploading, setUploading] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   const handleFileChange = async (e) => {
@@ -70,30 +70,39 @@ export const ProfilePage = () => {
     <div className="p-8 text-white max-w-4xl mx-auto pb-24">
       {/* CABECERA (Igual que antes) */}
       <div className="flex items-center gap-6 mb-12 bg-white/5 p-8 rounded-2xl border border-white/10 shadow-xl backdrop-blur-sm">
-        <div className="w-32 h-32 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center shadow-2xl ring-4 ring-black/50">
-          <User size={64} className="text-white drop-shadow-md" />
-        </div>
-        <div>
+        <img
+          src={
+            user?.imagenUrl ||
+            user?.foto ||
+            "https://placehold.co/150?text=User"
+          }
+          className="w-32 h-32 rounded-full object-cover shadow-2xl ring-4 ring-black/50"
+        />
+        <div className="flex-1">
           <h2 className="text-xs font-bold uppercase text-spotify-green mb-1 tracking-widest">
             Perfil de Usuario
           </h2>
           <h1 className="text-5xl font-black mb-2 tracking-tighter">
             {user?.username}
           </h1>
-          <p className="text-gray-400 text-sm">Miembro de MiniSpotify</p>
-          {isArtistNow && (
-            <div className="inline-flex items-center gap-2 mt-4 bg-white text-black text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
-              <Award size={16} className="text-purple-600" />
-              <span>ARTISTA VERIFICADO</span>
-            </div>
-          )}
+          <p className="text-gray-400 text-sm">{user?.email}</p>
 
-          <button
-            onClick={() => setIsEditProfileOpen(true)}
-            className="bg-transparent border border-gray-500 text-white px-4 py-1 rounded-full text-sm font-bold hover:border-white hover:scale-105 transition"
-          >
-            Editar Perfil
-          </button>
+          <div className="flex items-center gap-4 mt-4">
+            {/* BOTÓN EDITAR PERFIL */}
+            <button
+              onClick={() => setIsEditProfileOpen(true)}
+              className="bg-transparent border border-gray-500 text-white px-4 py-1.5 rounded-full text-xs font-bold hover:border-white hover:scale-105 transition"
+            >
+              Editar Perfil
+            </button>
+
+            {isArtistNow && (
+              <div className="inline-flex items-center gap-2 bg-white text-black text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
+                <Award size={16} className="text-purple-600" />
+                <span>ARTISTA VERIFICADO</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -250,10 +259,10 @@ export const ProfilePage = () => {
         onPlaylistCreated={() => toast.success("¡Playlist creada!")}
       />
 
-      <EditProfileModal 
-           isOpen={isEditProfileOpen}
-           onClose={() => setIsEditProfileOpen(false)}
-       />
+      <EditProfileModal
+        isOpen={isEditProfileOpen}
+        onClose={() => setIsEditProfileOpen(false)}
+      />
     </div>
   );
 };
