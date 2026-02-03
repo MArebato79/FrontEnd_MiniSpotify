@@ -48,7 +48,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (newData) => {
-    // 1. Fusionamos los datos actuales con los nuevos (ej: añadimos artistId)
     const updatedUser = { ...user, ...newData };
     setUser(updatedUser);
     localStorage.setItem("user", JSON.stringify(updatedUser));
