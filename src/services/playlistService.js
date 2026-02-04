@@ -6,11 +6,11 @@ export const getMyPlaylists = async () => {
         return response.data.content || response.data || [];
     } catch (error) {
         console.error("Error obteniendo playlists", error);
-    return [];
+        return [];
     }
 };
 
-export const createPlaylist = async (playlistData) => { 
+export const createPlaylist = async (playlistData) => {
     try {
         const response = await api.post('/playlists', playlistData);
         return response.data;
@@ -27,19 +27,19 @@ export const updatePlaylist = async (id, data) => {
 };
 
 export const deletePlaylist = async (id) => {
-    try{
+    try {
         await api.delete(`/playlists/${id}`);
-    }catch(error){
+    } catch (error) {
         console.error("Error borrando playlist", error);
         throw error;
     }
 }
 
 export const getPlaylistById = async (id) => {
-  const response = await api.get(`/playlists/${id}`);
-  return response.data;
+    const response = await api.get(`/playlists/${id}`);
+    return response.data;
 };
 
 export const addSongToPlaylist = async (playlistId, cancionId) => {
-  await api.post(`/playlists/${playlistId}/canciones/${cancionId}`);
+    await api.post(`/playlists/${playlistId}/canciones/${cancionId}`);
 };

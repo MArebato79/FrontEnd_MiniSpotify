@@ -12,7 +12,7 @@ export const EditPlaylistModal = ({ isOpen, onClose, playlist, onUpdated }) => {
   useEffect(() => {
     if (playlist && isOpen) {
       setValue("nombre", playlist.nombre);
-      setValue("description", playlist.description || playlist.descripcion);
+      setValue("descripcion", playlist.description || playlist.descripcion);
       setValue("publica", playlist.publica);
       setValue("imagenUrl", playlist.imagenUrl || playlist.foto);
     }
@@ -51,7 +51,7 @@ export const EditPlaylistModal = ({ isOpen, onClose, playlist, onUpdated }) => {
           </div>
           <div>
             <label className="text-sm font-bold text-white">Descripción</label>
-            <textarea {...register("description")} className="w-full p-3 rounded bg-[#3E3E3E] text-white border-none resize-none h-20" />
+            <textarea {...register("descripcion")} className="w-full p-3 rounded bg-[#3E3E3E] text-white border-none resize-none h-20" />
           </div>
           <div>
             <label className="text-sm font-bold text-white mb-1 block">Portada</label>
