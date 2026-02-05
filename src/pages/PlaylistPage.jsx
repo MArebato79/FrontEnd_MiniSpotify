@@ -17,7 +17,7 @@ export const PlaylistPage = () => {
   const [playlist, setPlaylist] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isAddSongOpen, setIsAddSongOpen] = useState(false); // Estado para el nuevo modal
+  const [isAddSongOpen, setIsAddSongOpen] = useState(false);
 
   const fetchPlaylist = async () => {
     try {
@@ -47,7 +47,7 @@ export const PlaylistPage = () => {
   };
 
   const handleRemoveSong = async (e, songId) => {
-    e.stopPropagation(); // Evitar que reproduzca la canción al pulsar borrar
+    e.stopPropagation();
     if (!window.confirm("¿Quitar canción de la lista?")) return;
     try {
       // Nota: Revisa que tu servicio tenga esta función exportada correctamente
@@ -62,8 +62,6 @@ export const PlaylistPage = () => {
   if (loading) return <div className="p-8 text-white">Cargando...</div>;
   if (!playlist) return <div className="p-8 text-white">Playlist no encontrada</div>;
 
-  // Comprobación de dueño: Si el usuario logueado es el creador de la playlist
-  // Nota: Ajusta 'playlist.usuario.username' o 'id' según cómo venga tu DTO de Usuario
   const isOwner = user && playlist.usuario && (user.username === playlist.usuario.username || user.email === playlist.usuario.email);
 
   return (
