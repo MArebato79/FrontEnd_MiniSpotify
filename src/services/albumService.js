@@ -37,3 +37,8 @@ export const getAlbumById = async (id) => {
 export const linkSongToAlbum = async (albumId, cancionId) => {
     await api.put(`/albums/${albumId}/canciones/vincular/${cancionId}`);
 };
+
+export const addSongToAlbum = async (albumId, cancionId) => {
+    const response = await api.post(`/albums/${albumId}/canciones/${cancionId}`);
+    return response.data; // Devuelve la lista actualizada de canciones
+};

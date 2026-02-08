@@ -34,3 +34,5 @@ export const updateArtist = async (data) => {
     const response = await api.put(`/artistas`, data);
     return response.data;
 };
+
+

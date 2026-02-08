@@ -12,7 +12,6 @@ export const EditAlbumModal = ({ isOpen, onClose, album, onUpdated }) => {
   useEffect(() => {
     if (album && isOpen) {
       setValue("nombre", album.nombre);
-      setValue("anio", album.anio);
       setValue("imagenUrl", album.imagenUrl || album.foto);
     }
   }, [album, isOpen, setValue]);
@@ -46,12 +45,9 @@ export const EditAlbumModal = ({ isOpen, onClose, album, onUpdated }) => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="text-sm font-bold text-white">Nombre</label>
-            <input {...register("nombre", { required: true })} className="w-full p-3 rounded bg-[#3E3E3E] text-white border-none" />
+            <input {...register("titulo", { required: true })} className="w-full p-3 rounded bg-[#3E3E3E] text-white border-none" />
           </div>
-          <div>
-            <label className="text-sm font-bold text-white">Año</label>
-            <input type="number" {...register("anio")} className="w-full p-3 rounded bg-[#3E3E3E] text-white border-none" />
-          </div>
+        
           <div>
             <label className="text-sm font-bold text-white mb-1 block">Carátula</label>
             <div className="flex gap-2">

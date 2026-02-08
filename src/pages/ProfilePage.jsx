@@ -9,6 +9,7 @@ import {
     Upload,
     Loader2,
     ListMusic,
+    LogOut
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { createArtist } from "../services/artistaService";
@@ -236,7 +237,9 @@ export const ProfilePage = () => {
                                 Activar Perfil
                             </button>
                         </form>
+
                     </div>
+                    
                 </div>
             )}
 
@@ -263,6 +266,15 @@ export const ProfilePage = () => {
                 isOpen={isEditProfileOpen}
                 onClose={() => setIsEditProfileOpen(false)}
             />
+            <div className="mt-12 pt-8 border-t border-white/10 flex justify-center pb-8">
+                <button 
+                    onClick={logout} 
+                    className="flex items-center gap-2 px-8 py-3 rounded-full border border-red-500/50 text-red-500 font-bold hover:bg-red-500 hover:text-white transition shadow-lg hover:shadow-red-900/20"
+                >
+                    <LogOut size={20} />
+                    Cerrar Sesión
+                </button>
+            </div>
         </div>
     );
 };

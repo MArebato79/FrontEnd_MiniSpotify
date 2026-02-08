@@ -19,6 +19,11 @@ export const getCancionById = async (id) => {
     }
 };
 
+export const getCancionesByArtista = async (artistaId) => {
+    const response = await api.get(`/canciones/artista/${artistaId}`);
+    return response.data;
+};
+
 export const createCancion = async (cancionData)=>{ 
     try {
         const response = await api.post('/canciones',cancionData)

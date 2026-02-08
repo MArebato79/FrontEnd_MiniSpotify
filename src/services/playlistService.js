@@ -10,6 +10,17 @@ export const getMyPlaylists = async () => {
     }
 };
 
+export const getAllPlaylists = async () => {
+    try {
+        // Esto llama al endpoint GET /playlists que creamos en el Controller
+        const response = await api.get('/playlists/publicas'); 
+        return response.data;
+    } catch (error) {
+        console.error("Error obteniendo playlists públicas", error);
+        return [];
+    }
+};
+
 export const createPlaylist = async (playlistData) => {
     try {
         const response = await api.post('/playlists', playlistData);
