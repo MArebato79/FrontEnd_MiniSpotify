@@ -17,12 +17,33 @@ export const SongPage = () => {
   const fetchSong = async () => {
     try {
       const data = await getCancionById(id);
+      console.log(data)
       setSong(data);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatArtists = (song) => {
+    if (!song) return "";
+
+    // 1. Sacamos el artista principal
+    // Tu JSON nuevo trae un objeto 'artista', el antiguo traía 'artistaNombre'
+    let artistName = song.artista?.nombre || song.artistaNombre || "Artista Desconocido";
+
+    // 2. Sacamos los colaboradores (Feats)
+    // Tu JSON trae 'colaboraciones', otros endpoints pueden traer 'colaboradores'
+    const feats = song.colaboraciones || song.colaboradores || [];
+
+    // 3. Si hay colaboradores, los añadimos al texto
+    if (feats.length > 0) {
+        const featNames = feats.map(f => f.nombre).join(", ");
+        return `${artistName} ft. ${featNames}`;
+    }
+
+    return artistName;
   };
 
   useEffect(() => {
@@ -58,7 +79,7 @@ export const SongPage = () => {
                className="w-6 h-6 rounded-full"
                onError={(e) => e.target.style.display = 'none'} 
             />
-            <span className="hover:underline cursor-pointer">{song.artista?.nombre || "Artista desconocido"}</span>
+            <span className="hover:underline cursor-pointer">{(song.artista?.nombre || "Artista desconocido") && (formatArtists(song) || "") }</span>
             <span>• {song.anio || "2024"}</span>
             
             {/* BOTÓN EDITAR */}
